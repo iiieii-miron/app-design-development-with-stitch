@@ -43,6 +43,15 @@ npm i -D playwright
 npx playwright install chromium
 ```
 
+## Check environment
+
+```bash
+SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
+node "$SKILL_DIR/scripts/check-env.mjs" "$SKILL_DIR"
+```
+
+This reports whether the skill scripts are present and whether common dependencies such as Node, Ollama, and the preferred visual model appear available.
+
 ## Use bundled scripts
 
 ```bash
@@ -60,6 +69,12 @@ node "$SKILL_DIR/scripts/visual-review.mjs" \
   docs/design/visual/implementation-calendar-mobile.png \
   docs/design/visual/calendar-gap-report.md
 ```
+
+## References
+
+- `references/runtime-compatibility.md`
+- `references/workflow-artifacts.md`
+- `references/visual-review-policy.md`
 
 ## Notes
 

@@ -19,11 +19,15 @@ This workflow is runtime-neutral. It works whether the coding agent runs in Clau
 
 Choose the lightest mode that still preserves the contract.
 
-- **light** — Use for small prototypes, one-screen tools, or narrow feature work. Minimum artifacts: `PRODUCT_BRIEF.md`, approved screen/design reference, implementation screenshots, visual gap report, and a short implementation plan.
-- **standard** — Default for most app features and small-to-medium projects. Use the full core workflow from this skill unless the user asks for stricter process.
-- **strict** — Use for larger redesigns, production-critical UI, multi-screen products, handoff-heavy collaboration, or when accessibility/responsive/state coverage must be formally tracked. In this mode, require the full artifact set plus explicit accessibility, responsive, and interaction-state coverage.
+- **light** — Use for small prototypes, one-screen tools, or narrow feature work.
+- **standard** — Default for most app features and small-to-medium projects.
+- **strict** — Use for larger redesigns, production-critical UI, multi-screen products, handoff-heavy collaboration, or when accessibility/responsive/state coverage must be formally tracked.
 
 If the user does not choose, use `standard` by default. Do not weaken approval gates or visual QA in any mode.
+
+For detailed mode guidance and artifact expectations, read:
+- `references/runtime-compatibility.md`
+- `references/workflow-artifacts.md`
 
 ## Architecture rule
 
@@ -113,10 +117,7 @@ docs/
     IMPLEMENTATION_PLAN.md
 ```
 
-Artifact expectations by mode:
-- **light** — Keep only the minimum needed to preserve decisions and QA. Reuse short sections inside fewer files if preferred.
-- **standard** — Use the core artifact set. `ACCESSIBILITY_CHECKLIST.md`, `RESPONSIVE_CONTRACT.md`, and `INTERACTION_STATES.md` may be short but must exist for non-trivial UI.
-- **strict** — Require the full set above with explicit coverage for accessibility, responsive behavior, and interaction states.
+For detailed artifact guidance by mode, read `references/workflow-artifacts.md`.
 
 Do not add workflow helper scripts to the project by default.
 
@@ -222,14 +223,7 @@ node "$SKILL_DIR/scripts/visual-review.mjs" \
 
 The script validates reference dimensions, calls Ollama at `http://localhost:11434/api/chat`, uses `qwen3-vl:30b` by default, sends both images as base64, and writes Markdown.
 
-Preferred verification ladder:
-1. `qwen3-vl:30b` through Ollama using the bundled script.
-2. Another user-approved local or remote VLM with comparable capability, documented in the gap report.
-3. Structured manual review using the same severity system, only if no acceptable VLM path is available.
-
-Do not silently switch models. If the preferred model is unavailable, say what is missing and either use a user-approved fallback or ask before proceeding. Flexibility is allowed; lowering verification rigor is not.
-
-Severity values: BLOCKING, MAJOR, MINOR. Blocking examples: unstyled/browser-default UI, app shell missing, card/feed layout implemented as table/grid, missing navigation, missing bottom navigation when present in reference, missing primary content sections, wrong responsive structure, inaccessible focus/navigation behavior, missing required interaction states, or reference image too small to verify. The task is not complete while BLOCKING gaps remain. MAJOR gaps must be fixed unless the user explicitly accepts them.
+For the full fallback ladder, severity model, and review rules, read `references/visual-review-policy.md`.
 
 ## Phase 12 — Fix loop
 
@@ -256,3 +250,12 @@ Final response must include screens implemented, tests run, visual verification 
 ## If tools are missing
 
 If a Stitch/Stitch Kit tool is unavailable, state exactly which tool is unavailable, use the closest available alternative, do not pretend the artifact was retrieved, and ask whether to continue manually. If TaskList is unavailable, create markdown plans with checkboxes in the repository, e.g. `docs/plans/<task-name>.md`.
+
+Before starting a substantial run, prefer checking the environment with the bundled helper:
+
+```bash
+SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
+node "$SKILL_DIR/scripts/check-env.mjs" "$SKILL_DIR"
+```
+
+Treat warnings as operational risks to manage, not automatic blockers. Treat failed checks as blockers unless the user explicitly accepts a fallback path.

@@ -5,7 +5,25 @@ description: Superpowers-style app development workflow with Stitch/Stitch Kit d
 
 # App Design Development with Stitch
 
-This skill combines Superpowers-style engineering, Stitch/Stitch Kit design generation, explicit human approval gates, and bundled helper scripts for Playwright screenshots plus local qwen3-vl visual review through Ollama.
+This skill combines Superpowers-style engineering, Stitch/Stitch Kit design generation, explicit human approval gates, and bundled helper scripts for Playwright screenshots plus local visual review through Ollama.
+
+Keep the core contract strict even when tools vary:
+- use approved Stitch designs as the implementation contract
+- implement from extracted design artifacts, not memory or vibes
+- preserve explicit human approval gates
+- require visual verification before declaring UI work complete
+
+This workflow is runtime-neutral. It works whether the coding agent runs in Claude Code, OpenCode, OpenClaw, Codex, or another environment. The common use case is a text-only coding model paired with browser automation for screenshots and a separate visual model for image comparison.
+
+## Workflow modes
+
+Choose the lightest mode that still preserves the contract.
+
+- **light** — Use for small prototypes, one-screen tools, or narrow feature work. Minimum artifacts: `PRODUCT_BRIEF.md`, approved screen/design reference, implementation screenshots, visual gap report, and a short implementation plan.
+- **standard** — Default for most app features and small-to-medium projects. Use the full core workflow from this skill unless the user asks for stricter process.
+- **strict** — Use for larger redesigns, production-critical UI, multi-screen products, handoff-heavy collaboration, or when accessibility/responsive/state coverage must be formally tracked. In this mode, require the full artifact set plus explicit accessibility, responsive, and interaction-state coverage.
+
+If the user does not choose, use `standard` by default. Do not weaken approval gates or visual QA in any mode.
 
 ## Architecture rule
 
@@ -13,11 +31,28 @@ This skill and its helper scripts are workflow tooling, not project application 
 
 Do not copy bundled helper scripts into the target project unless the user explicitly asks. Use helper scripts from this skill directory. The project should contain only product/design artifacts, screenshots, reports, tests, and application code.
 
-Claude Code skills may contain helper files next to `SKILL.md`. This skill expects:
+This skill expects bundled helper files next to `SKILL.md`:
 
 ```text
 <skill-directory>/scripts/visual-review.mjs
 <skill-directory>/scripts/capture-screenshot.mjs
+```
+
+Resolve the skill directory explicitly before running helper scripts. Prefer a variable such as `SKILL_DIR` over hard-coded install assumptions.
+
+Examples of valid locations include:
+- `~/.claude/skills/app-design-development-with-stitch/`
+- `.claude/skills/app-design-development-with-stitch/`
+- an OpenClaw/local-skills directory
+- a plugin-managed skill directory
+- a checked-out repository copy of this skill
+
+Preferred pattern:
+
+```bash
+SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
+node "$SKILL_DIR/scripts/capture-screenshot.mjs" ...
+node "$SKILL_DIR/scripts/visual-review.mjs" ...
 ```
 
 If you cannot locate the skill directory or bundled scripts, stop and ask the user instead of creating project-local workflow scripts.
@@ -61,6 +96,9 @@ docs/
     COMPONENT_MAP.md
     DESIGN_HANDOFF.md
     VISUAL_GAP_REPORT.md
+    ACCESSIBILITY_CHECKLIST.md
+    RESPONSIVE_CONTRACT.md
+    INTERACTION_STATES.md
     stitch/
       screens.md
       style-reference/
@@ -75,6 +113,11 @@ docs/
     IMPLEMENTATION_PLAN.md
 ```
 
+Artifact expectations by mode:
+- **light** — Keep only the minimum needed to preserve decisions and QA. Reuse short sections inside fewer files if preferred.
+- **standard** — Use the core artifact set. `ACCESSIBILITY_CHECKLIST.md`, `RESPONSIVE_CONTRACT.md`, and `INTERACTION_STATES.md` may be short but must exist for non-trivial UI.
+- **strict** — Require the full set above with explicit coverage for accessibility, responsive behavior, and interaction states.
+
 Do not add workflow helper scripts to the project by default.
 
 ## Bundled helper scripts
@@ -82,24 +125,26 @@ Do not add workflow helper scripts to the project by default.
 Use the bundled helper scripts from the skill directory:
 
 ```bash
-node ~/.claude/skills/app-design-development-with-stitch/scripts/capture-screenshot.mjs \
+SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
+node "$SKILL_DIR/scripts/capture-screenshot.mjs" \
   http://localhost:5173/calendar \
   docs/design/visual/implementation-calendar-mobile.png \
   390 844
 ```
 
 ```bash
-node ~/.claude/skills/app-design-development-with-stitch/scripts/visual-review.mjs \
+SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
+node "$SKILL_DIR/scripts/visual-review.mjs" \
   docs/design/visual/reference-calendar-mobile.png \
   docs/design/visual/implementation-calendar-mobile.png \
   docs/design/visual/calendar-gap-report.md
 ```
 
-If installed elsewhere, locate the skill before running scripts. Possible locations: `~/.claude/skills/app-design-development-with-stitch/`, `.claude/skills/app-design-development-with-stitch/`, or a plugin skill directory. Prefer explicit paths. Do not assume project-local `scripts/visual-review.mjs` exists.
+Do not assume project-local `scripts/visual-review.mjs` exists.
 
 ## Phase 0 — Workflow activation
 
-When this skill activates, briefly state that Superpowers is the engineering workflow and Stitch/Stitch Kit handles design stages. The flow is: product brief, design-system variants, design-system approval, app shell/shared components approval, full screen set generation, screen approval, handoff extraction, component-based implementation, Playwright screenshots, qwen3-vl visual verification using bundled skill scripts, and fix loop. Do not write production UI code in this phase.
+When this skill activates, briefly state that Superpowers is the engineering workflow and Stitch/Stitch Kit handles design stages. State the selected workflow mode (`light`, `standard`, or `strict`) if it matters. The flow is: product brief, design-system variants, design-system approval, app shell/shared components approval, full screen set generation, screen approval, handoff extraction, component-based implementation, Playwright screenshots, visual verification using bundled skill scripts, and fix loop. Do not write production UI code in this phase.
 
 ## Phase 1 — Product discovery
 
@@ -115,9 +160,11 @@ Each variant must explore visual style, palette, typography, spacing density, ca
 
 After approval, extract `docs/design/DESIGN_SYSTEM.md` and `docs/design/DESIGN_TOKENS.md`. Cover visual direction, color palette, typography scale, spacing scale, radius scale, shadows/elevation, icon style, image/media style, button styles, input styles, card styles, accessibility notes, and do/don't examples. `DESIGN_TOKENS.md` must contain concrete values where possible. From this point onward, all Stitch prompts and implementation code must reference the approved design system.
 
+For `standard` and `strict` modes, also begin `docs/design/ACCESSIBILITY_CHECKLIST.md` and `docs/design/RESPONSIVE_CONTRACT.md` here so accessibility and responsive behavior are designed intentionally instead of patched later.
+
 ## Phase 4 — App shell and shared components approval gate
 
-Before generating all screens, define and approve shared UI: app shell, header/topbar, bottom nav or side nav, footer if applicable, page background, main content container, shared cards, buttons, inputs, empty states, and loading states if important. Create `docs/design/APP_SHELL.md`, `docs/design/SHARED_COMPONENTS.md`, and `docs/design/stitch/app-shell/README.md`. Ask the user to approve the app shell and shared components.
+Before generating all screens, define and approve shared UI: app shell, header/topbar, bottom nav or side nav, footer if applicable, page background, main content container, shared cards, buttons, inputs, empty states, loading states, and core interaction states if important. Create `docs/design/APP_SHELL.md`, `docs/design/SHARED_COMPONENTS.md`, `docs/design/INTERACTION_STATES.md`, and `docs/design/stitch/app-shell/README.md`. Ask the user to approve the app shell and shared components.
 
 If Stitch supports reusable components/templates, use them. If not, emulate templates process-wise by creating an approved app-shell reference, storing shell screenshot/HTML/details, including shell requirements in every subsequent screen prompt, and auditing consistency after generation.
 
@@ -125,7 +172,7 @@ If Stitch supports reusable components/templates, use them. If not, emulate temp
 
 Generate the full set only after product brief, design system, and app shell/shared components are approved. Every screen prompt must reference `DESIGN_SYSTEM.md`, `APP_SHELL.md`, and `SHARED_COMPONENTS.md`, preserve shared navigation/header/footer, and vary only page-specific content. Save metadata in `docs/design/stitch/screens.md`.
 
-After generating screens, run a consistency audit and create/update `docs/design/SCREEN_CONTRACTS.md`. Check same nav labels, shell geometry, header/topbar positioning, component styles, token usage, viewport assumptions, and no accidental style drift. Ask the user to approve the screen set. Do not implement UI before screen approval.
+After generating screens, run a consistency audit and create/update `docs/design/SCREEN_CONTRACTS.md`. Check same nav labels, shell geometry, header/topbar positioning, component styles, token usage, viewport assumptions, responsive behavior assumptions, interaction-state coverage, and no accidental style drift. Ask the user to approve the screen set. Do not implement UI before screen approval.
 
 ## Phase 6 — Stitch timeout policy
 
@@ -135,22 +182,25 @@ If a Stitch generation tool times out, do not immediately retry. Treat generatio
 
 After screen approval, extract a formal handoff. Use Stitch Kit skills where available: `stitch-design-md`, `stitch-design-system`, `stitch-loop`, `stitch-react-components`, `stitch-nextjs-components`, `stitch-html-components`. For each approved screen, retrieve Stitch screen details, screenshot/preview if available, and HTML/code artifact if available. Save original artifacts under `docs/design/stitch/screens/`.
 
-Create `docs/design/DESIGN_HANDOFF.md` and `docs/design/COMPONENT_MAP.md`. `COMPONENT_MAP.md` should map design elements to implementation components and list what must be preserved. If extracted Stitch HTML/tokens exist, implementation must start from them or explicitly explain why they cannot be used.
+Create `docs/design/DESIGN_HANDOFF.md` and `docs/design/COMPONENT_MAP.md`. `COMPONENT_MAP.md` should map design elements to implementation components and list what must be preserved. If extracted Stitch HTML/tokens exist, implementation should start from them when practical, or explicitly document why they cannot be used literally and how the implementation preserves the approved behavior, layout, tokens, and interaction contract instead.
 
 ## Phase 8 — Implementation planning
 
-Use Superpowers planning. Create `docs/plans/IMPLEMENTATION_PLAN.md`. The plan must be component-first: design tokens, app shell, shared components, page components, routes/state/data, tests, visual verification plan. Implement design tokens first, then app shell/shared components, visually verify shell/shared components, then implement screens inside the shell. If a design element is hard to implement, stop and ask before changing it.
+Use Superpowers planning. Create `docs/plans/IMPLEMENTATION_PLAN.md`. The plan must be component-first: design tokens, app shell, shared components, page components, routes/state/data, tests, accessibility checks, responsive checks, interaction-state coverage, and visual verification plan. Implement design tokens first, then app shell/shared components, visually verify shell/shared components, then implement screens inside the shell. If a design element is hard to implement, stop and ask before changing it.
 
 ## Phase 9 — Implementation
 
-Implement from approved artifacts in this priority order: extracted Stitch HTML/code artifacts, `DESIGN_HANDOFF.md`, `COMPONENT_MAP.md`, `DESIGN_SYSTEM.md`, `DESIGN_TOKENS.md`, user-approved notes. Do not implement from memory, a loose verbal summary, or screenshots as the only source. Do not replace layout with a simpler generic layout. Do not claim match without qwen3-vl visual review.
+Implement from approved artifacts in this priority order: extracted Stitch HTML/code artifacts, `DESIGN_HANDOFF.md`, `COMPONENT_MAP.md`, `DESIGN_SYSTEM.md`, `DESIGN_TOKENS.md`, user-approved notes. Do not implement from memory, a loose verbal summary, or screenshots as the only source. Do not replace layout with a simpler generic layout. Do not claim match without visual review.
+
+During implementation, preserve accessibility, responsive structure, and interaction states as first-class requirements, not polish tasks.
 
 ## Phase 10 — Screenshot capture
 
 Use bundled Playwright helper script or an equivalent project command. Preferred:
 
 ```bash
-node ~/.claude/skills/app-design-development-with-stitch/scripts/capture-screenshot.mjs \
+SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
+node "$SKILL_DIR/scripts/capture-screenshot.mjs" \
   http://localhost:5173/calendar \
   docs/design/visual/implementation-calendar-mobile.png \
   390 844
@@ -158,36 +208,48 @@ node ~/.claude/skills/app-design-development-with-stitch/scripts/capture-screens
 
 Target viewports: mobile 390x844, desktop 1440x900, tablet 768x1024 if relevant. Reference screenshots must be valid quality: mobile at least 390px wide, preferred 780x1688; desktop at least target viewport width. If a Stitch-provided image is too small, do not use it as reference. Recapture/export at higher resolution, open Stitch/HTML reference in browser and screenshot the target frame, or ask the user for a higher-resolution export.
 
-## Phase 11 — qwen3-vl visual verification through Ollama
+## Phase 11 — Visual verification through Ollama or an equivalent visual-review path
 
-For visual verification, do not ask Claude Code to directly inspect images. Use bundled visual review script:
+For visual verification, do not rely on the main coding model to inspect images unless the user explicitly chooses that path and it is known to be reliable. Use bundled visual review script by default:
 
 ```bash
-node ~/.claude/skills/app-design-development-with-stitch/scripts/visual-review.mjs \
+SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
+node "$SKILL_DIR/scripts/visual-review.mjs" \
   docs/design/visual/reference-calendar-mobile.png \
   docs/design/visual/implementation-calendar-mobile.png \
   docs/design/visual/calendar-gap-report.md
 ```
 
-The script validates reference dimensions, calls Ollama at `http://localhost:11434/api/chat`, uses `qwen3-vl:30b` by default, sends both images as base64, and writes Markdown. If `qwen3-vl:30b` is unavailable, stop and ask before using another model.
+The script validates reference dimensions, calls Ollama at `http://localhost:11434/api/chat`, uses `qwen3-vl:30b` by default, sends both images as base64, and writes Markdown.
 
-Severity values: BLOCKING, MAJOR, MINOR. Blocking examples: unstyled/browser-default UI, app shell missing, card/feed layout implemented as table/grid, missing navigation, missing bottom navigation when present in reference, missing primary content sections, wrong responsive structure, or reference image too small to verify. The task is not complete while BLOCKING gaps remain. MAJOR gaps must be fixed unless the user explicitly accepts them.
+Preferred verification ladder:
+1. `qwen3-vl:30b` through Ollama using the bundled script.
+2. Another user-approved local or remote VLM with comparable capability, documented in the gap report.
+3. Structured manual review using the same severity system, only if no acceptable VLM path is available.
+
+Do not silently switch models. If the preferred model is unavailable, say what is missing and either use a user-approved fallback or ask before proceeding. Flexibility is allowed; lowering verification rigor is not.
+
+Severity values: BLOCKING, MAJOR, MINOR. Blocking examples: unstyled/browser-default UI, app shell missing, card/feed layout implemented as table/grid, missing navigation, missing bottom navigation when present in reference, missing primary content sections, wrong responsive structure, inaccessible focus/navigation behavior, missing required interaction states, or reference image too small to verify. The task is not complete while BLOCKING gaps remain. MAJOR gaps must be fixed unless the user explicitly accepts them.
 
 ## Phase 12 — Fix loop
 
-After each implementation round: capture implementation screenshot, run qwen3-vl visual review, read the gap report, fix BLOCKING issues first, then MAJOR issues, repeat until accepted. Do not waste time on minor colors/polish while structural gaps remain. If qwen3-vl report says everything is minor but screenshot visibly shows structural mismatch, treat this as failed visual review and escalate to the user.
+After each implementation round: capture implementation screenshot, run visual review, read the gap report, fix BLOCKING issues first, then MAJOR issues, repeat until accepted. Do not waste time on minor colors/polish while structural gaps remain. If the visual review report says everything is minor but the screenshot visibly shows structural mismatch, treat this as failed visual review and escalate to the user.
 
 ## Phase 13 — Functional tests
 
 Use normal Superpowers test discipline: unit tests where appropriate, component tests, integration tests, and Playwright/e2e tests for critical flows. Functional tests do not replace visual verification.
 
+For `standard` and `strict` modes, include checks for keyboard navigation, visible focus, critical responsive breakpoints, and important interaction states in the test/review plan.
+
 ## Phase 14 — Human implementation review gate
 
-Before finalizing, show implemented screens, screenshots, test results, qwen3-vl visual gap reports, known deviations, and unresolved MINOR issues. Ask for review if visible deviations remain.
+Before finalizing, show implemented screens, screenshots, test results, visual gap reports, known deviations, and unresolved MINOR issues. Ask for review if visible deviations remain.
 
 ## Phase 15 — Completion criteria
 
-Only mark complete when product brief exists, design system was approved, app shell/shared components were approved, full screen set was approved, handoff and component map exist, implementation references approved artifacts, tests pass, screenshots exist, qwen3-vl visual reports exist, no BLOCKING gaps remain, and no unaccepted MAJOR gaps remain.
+Only mark complete when the artifacts required by the chosen workflow mode exist, design system was approved when applicable, app shell/shared components were approved when applicable, full screen set was approved when applicable, handoff and component map exist when applicable, implementation references approved artifacts, tests pass, screenshots exist, visual reports exist, no BLOCKING gaps remain, and no unaccepted MAJOR gaps remain.
+
+For `standard` and `strict` modes, completion also requires explicit accessibility, responsive, and interaction-state review coverage.
 
 Final response must include screens implemented, tests run, visual verification status, remaining accepted deviations, and files changed.
 

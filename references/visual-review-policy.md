@@ -40,6 +40,23 @@ When not using the preferred path, note in the gap report:
 - missing required interaction states
 - reference screenshot too small to verify
 
+## Invalid reference handling
+
+If the reference screenshot is too small, too compressed, blurry, or otherwise not fit for comparison, visual verification is blocked until the reference is repaired.
+
+Acceptable remediation paths:
+1. recapture a higher-resolution export from Stitch
+2. open the approved Stitch/HTML reference in a browser and capture it at the correct viewport
+3. ask the user for a valid replacement reference
+
+A bad reference is not permission to lower verification standards.
+
+## Forbidden fallback paths
+
+- reading PNG/JPG/WebP files with the main coding model as a substitute for visual review
+- manually comparing screenshots with the main coding model after the visual-review path is blocked or fails
+- treating a blocked review as permission to improvise a weaker image-analysis path
+
 ## Review principles
 
 - Treat screenshot comparison as QA, not the primary implementation source.

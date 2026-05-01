@@ -44,6 +44,16 @@ When not using the preferred path, note in the gap report:
 
 If the reference screenshot is too small, too compressed, blurry, or otherwise not fit for comparison, visual verification is blocked until the reference is repaired.
 
+Use a three-level interpretation instead of one hard global cutoff:
+- **normal** — reference is comfortably readable for both structural and finer visual claims
+- **warning** — reference is usable for structural review, but confidence is reduced for fine-grained spacing, typography, and polish claims
+- **blocked** — reference is too small or degraded for reliable comparison
+
+As a rule of thumb for mobile references:
+- around **390px wide or higher** is preferred
+- somewhat smaller images may still be usable with warning if the structure is clearly readable
+- very small previews should be blocked
+
 Acceptable remediation paths:
 1. recapture a higher-resolution export from Stitch
 2. open the approved Stitch/HTML reference in a browser and capture it at the correct viewport

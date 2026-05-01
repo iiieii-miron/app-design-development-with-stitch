@@ -76,6 +76,8 @@ Forbidden substitutions:
 
 Visual verification is mandatory. The task is not complete until reference screenshots are valid, implementation screenshots are captured at the same viewport, a visual review report exists, and all BLOCKING plus unaccepted MAJOR gaps are fixed.
 
+Do not directly inspect reference or implementation images with the main coding model. Do not use `read` on PNG/JPG/WebP files as a substitute for the visual-review path. If visual verification cannot proceed, repair the reference/review pipeline instead of attempting manual image comparison with the main coding model.
+
 Screenshot comparison is QA, not the primary implementation method. The primary path is:
 
 ```text
@@ -207,11 +209,11 @@ node "$SKILL_DIR/scripts/capture-screenshot.mjs" \
   390 844
 ```
 
-Target viewports: mobile 390x844, desktop 1440x900, tablet 768x1024 if relevant. Reference screenshots must be valid quality: mobile at least 390px wide, preferred 780x1688; desktop at least target viewport width. If a Stitch-provided image is too small, do not use it as reference. Recapture/export at higher resolution, open Stitch/HTML reference in browser and screenshot the target frame, or ask the user for a higher-resolution export.
+Target viewports: mobile 390x844, desktop 1440x900, tablet 768x1024 if relevant. Reference screenshots must be valid quality: mobile at least 390px wide, preferred 780x1688; desktop at least target viewport width. If a Stitch-provided image is too small, do not use it as reference. Treat this as a blocked verification state, not as permission to weaken the review path. Recapture/export at higher resolution, open Stitch/HTML reference in browser and screenshot the target frame, or ask the user for a higher-resolution export.
 
 ## Phase 11 — Visual verification through Ollama or an equivalent visual-review path
 
-For visual verification, do not rely on the main coding model to inspect images unless the user explicitly chooses that path and it is known to be reliable. Use bundled visual review script by default:
+For visual verification, do not rely on the main coding model to inspect images. Do not treat a blocked or failed visual-review run as permission to read the screenshots directly with the main coding model. Use bundled visual review script by default:
 
 ```bash
 SKILL_DIR=/absolute/path/to/app-design-development-with-stitch

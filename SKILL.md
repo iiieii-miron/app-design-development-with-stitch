@@ -209,7 +209,7 @@ node "$SKILL_DIR/scripts/capture-screenshot.mjs" \
   390 844
 ```
 
-Target viewports: mobile 390x844, desktop 1440x900, tablet 768x1024 if relevant. Reference screenshots must be valid quality: mobile at least 390px wide, preferred 780x1688; desktop at least target viewport width. If a Stitch-provided image is too small, do not use it as reference. Treat this as a blocked verification state, not as permission to weaken the review path. Recapture/export at higher resolution, open Stitch/HTML reference in browser and screenshot the target frame, or ask the user for a higher-resolution export.
+Target viewports: mobile 390x844, desktop 1440x900, tablet 768x1024 if relevant. Reference screenshots must be valid quality: mobile 390px wide is preferred, not a universal hard cutoff; desktop should ideally match the target viewport width. If a Stitch-provided image is clearly too small or unreadable, do not use it as reference. Treat that as a blocked verification state, not as permission to weaken the review path. Borderline references may still be used for structural comparison with an explicit warning and reduced confidence for fine-grained spacing/typography claims. Recapture/export at higher resolution, open Stitch/HTML reference in browser and screenshot the target frame, or ask the user for a higher-resolution export.
 
 ## Phase 11 — Visual verification through Ollama or an equivalent visual-review path
 

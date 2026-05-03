@@ -72,7 +72,7 @@ Forbidden substitutions:
 - approved cards replaced by browser-default controls
 - approved mobile-first screen implemented as desktop-first page
 
-Visual verification is mandatory. The task is not complete until reference screenshots are valid, implementation screenshots are captured at the same viewport, a visual review report exists, and all BLOCKING plus unaccepted MAJOR gaps are fixed.
+Visual verification is mandatory. The task is not complete until reference screenshots are valid, implementation screenshots are captured at the same viewport, a visual review report exists, and the user explicitly accepts the visual state. Do not treat the agent's own judgment as final approval.
 
 Do not directly inspect reference or implementation images with the main coding model. Do not use `read` on PNG/JPG/WebP files as a substitute for the visual-review path. If visual verification cannot proceed, repair the reference/review pipeline instead of attempting manual image comparison with the main coding model.
 
@@ -195,6 +195,8 @@ Implement from approved artifacts in this priority order: extracted Stitch HTML/
 
 During implementation, preserve accessibility, responsive structure, and interaction states as first-class requirements, not polish tasks.
 
+`docs/design/*` guides implementation intent, but it is not permission to dismiss a clear visual mismatch found in approved references or visual review. Do not silently downgrade or dismiss BLOCKING/MAJOR findings based only on your own interpretation of design documents. If you believe a finding is invalid, cite the exact artifact and ask the user to approve the dismissal.
+
 ## Phase 10 — Screenshot capture
 
 Capture implementation screenshots with the most direct project-native method available: Playwright in the target project, an existing screenshot/test command, or browser tooling that can render the implementation at the required viewport. Do not depend on a bundled capture helper script as the primary workflow.
@@ -219,7 +221,13 @@ For the full fallback ladder, severity model, and review rules, read `references
 
 ## Phase 12 — Fix loop
 
-After each implementation round: capture implementation screenshot, run visual review, read the gap report, fix BLOCKING issues first, then MAJOR issues, repeat until accepted. Do not waste time on minor colors/polish while structural gaps remain. If the visual review report says everything is minor but the screenshot visibly shows structural mismatch, treat this as failed visual review and escalate to the user.
+After each implementation round: capture implementation screenshot, run visual review, read the gap report, fix BLOCKING issues first, then MAJOR issues, repeat until the user explicitly accepts the visual result. Do not waste time on minor colors/polish while structural gaps remain. If the visual review report says everything is minor but the screenshot visibly shows structural mismatch, treat this as failed visual review and escalate to the user.
+
+Do not exit the visual-review loop on your own just because you believe the result is now good enough. The loop ends only when:
+1. the latest report has no remaining BLOCKING issues and no unaccepted MAJOR issues, and
+2. the user explicitly approves the visual state or explicitly accepts the remaining deviations.
+
+When the user asks to address a specific review finding, do not re-litigate the entire report by default. Treat the finding as actionable, modify the implementation toward the approved reference, rerun visual review, and report what changed.
 
 ## Phase 13 — Functional tests
 
@@ -229,15 +237,15 @@ For `standard` and `strict` modes, include checks for keyboard navigation, visib
 
 ## Phase 14 — Human implementation review gate
 
-Before finalizing, show implemented screens, screenshots, test results, visual gap reports, known deviations, and unresolved MINOR issues. Ask for review if visible deviations remain.
+Before finalizing, show implemented screens, screenshots, test results, visual gap reports, known deviations, and unresolved issues. Ask for review whenever visible deviations remain or when the latest visual-review pass still contains any findings the user has not explicitly accepted.
 
 ## Phase 15 — Completion criteria
 
-Only mark complete when the artifacts required by the chosen workflow mode exist, design system was approved when applicable, app shell/shared components were approved when applicable, full screen set was approved when applicable, handoff and component map exist when applicable, implementation references approved artifacts, tests pass, screenshots exist, visual reports exist, no BLOCKING gaps remain, and no unaccepted MAJOR gaps remain.
+Only mark complete when the artifacts required by the chosen workflow mode exist, design system was approved when applicable, app shell/shared components were approved when applicable, full screen set was approved when applicable, handoff and component map exist when applicable, implementation references approved artifacts, tests pass, screenshots exist, visual reports exist, no BLOCKING gaps remain, no unaccepted MAJOR gaps remain, and the user has explicitly approved the current visual state or explicitly accepted the remaining deviations.
 
 For `standard` and `strict` modes, completion also requires explicit accessibility, responsive, and interaction-state review coverage.
 
-Final response must include screens implemented, tests run, visual verification status, remaining accepted deviations, and files changed.
+Final response must include screens implemented, tests run, visual verification status, remaining accepted deviations, user approval status, and files changed.
 
 ## If tools are missing
 

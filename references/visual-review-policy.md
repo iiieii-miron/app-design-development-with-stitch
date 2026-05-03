@@ -73,3 +73,21 @@ A bad reference is not permission to lower verification standards.
 - Do not trust a VLM report blindly if the screenshot visibly disagrees.
 - Fix structural gaps before polish.
 - Functional tests do not replace visual review.
+- Do not dismiss BLOCKING or MAJOR findings based only on your own reading of design documents.
+- The agent does not have authority to declare visual review finished on its own; user approval is required.
+
+## Conflict resolution
+
+When `docs/design/*` and visual review appear to disagree:
+1. treat the discrepancy as real by default
+2. use design documents to guide the fix, not to erase the finding
+3. if you believe the finding should be dismissed, cite the exact artifact and ask the user to approve that dismissal
+
+## Fix-from-report mode
+
+When the user asks to address a specific review finding:
+1. treat that finding as actionable by default
+2. do not re-litigate the whole report unless the user asks
+3. modify implementation toward the approved reference
+4. rerun visual review
+5. continue the loop until the user explicitly accepts the result

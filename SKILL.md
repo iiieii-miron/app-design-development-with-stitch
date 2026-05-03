@@ -35,11 +35,10 @@ This skill and its helper scripts are workflow tooling, not project application 
 
 Do not copy bundled helper scripts into the target project unless the user explicitly asks. Run them from the skill directory instead. The project should contain only product/design artifacts, screenshots, reports, tests, and application code.
 
-This skill expects bundled helper files next to `SKILL.md`:
+This skill expects a bundled visual-review helper next to `SKILL.md`:
 
 ```text
 <skill-directory>/scripts/visual-review.mjs
-<skill-directory>/scripts/capture-screenshot.mjs
 ```
 
 Resolve the skill directory explicitly before running helper scripts. Prefer a variable such as `SKILL_DIR` over hard-coded install assumptions.
@@ -55,7 +54,6 @@ Preferred pattern:
 
 ```bash
 SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
-node "$SKILL_DIR/scripts/capture-screenshot.mjs" ...
 node "$SKILL_DIR/scripts/visual-review.mjs" ...
 ```
 
@@ -125,15 +123,7 @@ Do not add workflow helper scripts to the project by default.
 
 ## Bundled helper scripts
 
-Use the bundled helper scripts from the skill directory:
-
-```bash
-SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
-node "$SKILL_DIR/scripts/capture-screenshot.mjs" \
-  http://localhost:5173/calendar \
-  docs/design/visual/implementation-calendar-mobile.png \
-  390 844
-```
+Use the bundled visual-review helper from the skill directory:
 
 ```bash
 SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
@@ -185,6 +175,14 @@ If a Stitch generation tool times out, do not immediately retry. Treat generatio
 
 After screen approval, extract a formal handoff. Use Stitch Kit skills where available: `stitch-design-md`, `stitch-design-system`, `stitch-loop`, `stitch-react-components`, `stitch-nextjs-components`, `stitch-html-components`. For each approved screen, retrieve Stitch screen details, screenshot/preview if available, and HTML/code artifact if available. Save original artifacts under `docs/design/stitch/screens/`.
 
+When Stitch returns a `screenshot.downloadUrl`, do not blindly download the default URL because it may resolve to a low-resolution thumbnail. Use the screen `width` field from the same response and request the full-width image as:
+
+```text
+${screenshot.downloadUrl}=w${width}
+```
+
+Use that higher-resolution image as the reference candidate before deciding whether a reference is too small.
+
 Create `docs/design/DESIGN_HANDOFF.md` and `docs/design/COMPONENT_MAP.md`. `COMPONENT_MAP.md` should map design elements to implementation components and list what must be preserved. If extracted Stitch HTML/tokens exist, start from them when practical. If they cannot be used literally, document why and explain how the implementation still preserves the approved behavior, layout, tokens, and interaction contract.
 
 ## Phase 8 — Implementation planning
@@ -199,15 +197,7 @@ During implementation, preserve accessibility, responsive structure, and interac
 
 ## Phase 10 — Screenshot capture
 
-Use bundled Playwright helper script or an equivalent project command. Preferred:
-
-```bash
-SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
-node "$SKILL_DIR/scripts/capture-screenshot.mjs" \
-  http://localhost:5173/calendar \
-  docs/design/visual/implementation-calendar-mobile.png \
-  390 844
-```
+Capture implementation screenshots with the most direct project-native method available: Playwright in the target project, an existing screenshot/test command, or browser tooling that can render the implementation at the required viewport. Do not depend on a bundled capture helper script as the primary workflow.
 
 Target viewports: mobile 390x844, desktop 1440x900, tablet 768x1024 if relevant. Reference screenshots must be valid quality: mobile 390px wide is preferred, not a universal hard cutoff; desktop should ideally match the target viewport width. If a Stitch-provided image is clearly too small or unreadable, do not use it as reference. Treat that as a blocked verification state, not as permission to weaken the review path. Borderline references may still be used for structural comparison with an explicit warning and reduced confidence for fine-grained spacing/typography claims. Recapture/export at higher resolution, open Stitch/HTML reference in browser and screenshot the target frame, or ask the user for a higher-resolution export.
 

@@ -24,7 +24,6 @@ Expected structure:
   SKILL.md
   scripts/
     visual-review.mjs
-    capture-screenshot.mjs
   README.md
 ```
 
@@ -36,12 +35,7 @@ Preferred visual-review setup:
 ollama pull qwen3-vl:30b
 ```
 
-For screenshot capture, the target project needs Playwright available:
-
-```bash
-npm i -D playwright
-npx playwright install chromium
-```
+For implementation screenshot capture, prefer the target project's existing Playwright/browser test flow or another project-native screenshot command. This skill does not require a bundled capture helper.
 
 ## Check environment
 
@@ -52,15 +46,7 @@ node "$SKILL_DIR/scripts/check-env.mjs" "$SKILL_DIR"
 
 This reports whether the skill scripts are present and whether common dependencies such as Node, Ollama, and the preferred visual model appear available.
 
-## Use bundled scripts
-
-```bash
-SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
-node "$SKILL_DIR/scripts/capture-screenshot.mjs" \
-  http://localhost:5173/calendar \
-  docs/design/visual/implementation-calendar-mobile.png \
-  390 844
-```
+## Use bundled script
 
 ```bash
 SKILL_DIR=/absolute/path/to/app-design-development-with-stitch

@@ -74,7 +74,7 @@ Forbidden substitutions:
 
 Visual verification is mandatory. The task is not complete until reference screenshots are valid, implementation screenshots are captured at the same viewport, a visual review report exists, and all BLOCKING plus unaccepted MAJOR gaps are fixed.
 
-Do not directly inspect reference or implementation images with the main coding model. Do not use `read` on PNG/JPG/WebP files as a substitute for the visual-review path. If visual verification cannot proceed, repair the reference/review pipeline instead of attempting manual image comparison with the main coding model.
+If the active coding model is vision-capable and can reliably inspect images in the current runtime, it may perform the visual comparison directly. If the active model is text-only, cannot reliably inspect images, or fails to complete the comparison with sufficient confidence, use the bundled visual-review path instead. Do not use `read` on PNG/JPG/WebP files as a substitute for visual review when the active model is not actually vision-capable. If visual verification cannot proceed, repair the reference/review pipeline instead of attempting manual image comparison with a non-vision model.
 
 Screenshot comparison is QA, not the primary implementation method. The primary path is:
 
@@ -201,9 +201,9 @@ Capture implementation screenshots with the most direct project-native method av
 
 Target viewports: mobile 390x844, desktop 1440x900, tablet 768x1024 if relevant. Reference screenshots must be valid quality: mobile 390px wide is preferred, not a universal hard cutoff; desktop should ideally match the target viewport width. If a Stitch-provided image is clearly too small or unreadable, do not use it as reference. Treat that as a blocked verification state, not as permission to weaken the review path. Borderline references may still be used for structural comparison with an explicit warning and reduced confidence for fine-grained spacing/typography claims. Recapture/export at higher resolution, open Stitch/HTML reference in browser and screenshot the target frame, or ask the user for a higher-resolution export.
 
-## Phase 11 — Visual verification through Ollama or an equivalent visual-review path
+## Phase 11 — Visual verification through a vision-capable model or the bundled visual-review path
 
-For visual verification, do not rely on the main coding model to inspect images. Do not treat a blocked or failed visual-review run as permission to read the screenshots directly with the main coding model. Use bundled visual review script by default:
+For visual verification, prefer the active coding model only when it is genuinely vision-capable in the current runtime and can inspect the provided screenshots directly with reliable results. If the active model is text-only, image inspection is unavailable, or the model fails/struggles to complete the comparison, immediately fall back to the bundled visual-review script. Do not treat a blocked or failed visual-review run as permission to read the screenshots directly with a non-vision model. Use bundled visual review script as the default fallback path:
 
 ```bash
 SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
@@ -214,6 +214,8 @@ node "$SKILL_DIR/scripts/visual-review.mjs" \
 ```
 
 The script validates reference dimensions, calls Ollama at `http://localhost:11434/api/chat`, uses `qwen3-vl:30b` by default, sends both images as base64, and writes Markdown.
+
+When a vision-capable model performs the comparison directly, hold it to the same review standard: structural mismatches first, explicit severity, and no hand-wavy claims. If the direct comparison is incomplete, low-confidence, or unavailable, switch to the bundled script path without debate.
 
 For the full fallback ladder, severity model, and review rules, read `references/visual-review-policy.md`.
 

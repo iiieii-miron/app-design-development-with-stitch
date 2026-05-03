@@ -2,7 +2,9 @@
 
 Skill for a Superpowers + Stitch/Stitch Kit application workflow with strict design approval gates and visual QA.
 
-This repository is runtime-neutral in spirit: the coding agent can be Claude Code, OpenCode, OpenClaw, Codex, or another environment. The common target setup is a text-only coding model paired with Playwright screenshots and a separate visual model for screenshot review.
+This repository is runtime-neutral in spirit: the coding agent can be Claude Code, OpenCode, OpenClaw, Codex, or another environment. The workflow supports two visual-review modes:
+- direct comparison by the active model when it is genuinely vision-capable in the current runtime
+- bundled script fallback when the active model is text-only, image inspection is unavailable, or direct comparison is unreliable
 
 Helper scripts are workflow tooling, not project application code.
 

@@ -6,13 +6,16 @@ Preserve strict visual QA even when the main coding model cannot inspect images.
 
 ## Default path
 
-Use the bundled `visual-review.mjs` script with Ollama and `qwen3-vl:30b`.
+If the active coding model is genuinely vision-capable in the current runtime, it may compare the screenshots directly.
+
+If the active model is text-only, image inspection is unavailable, or direct comparison is low-confidence or incomplete, use the bundled `visual-review.mjs` script with Ollama and `qwen3-vl:30b`.
 
 ## Fallback ladder
 
-1. Preferred: `qwen3-vl:30b` via Ollama
-2. Acceptable fallback: another user-approved local or remote VLM with similar capability
-3. Last resort: structured manual review using the same severity system
+1. Preferred: direct comparison by the active coding model, but only when it is actually vision-capable and reliable in the current runtime
+2. Standard fallback: `qwen3-vl:30b` via Ollama through the bundled script
+3. Acceptable fallback: another user-approved local or remote VLM with similar capability
+4. Last resort: structured manual review using the same severity system
 
 Do not silently switch models.
 
@@ -63,8 +66,9 @@ A bad reference is not permission to lower verification standards.
 
 ## Forbidden fallback paths
 
-- reading PNG/JPG/WebP files with the main coding model as a substitute for visual review
-- manually comparing screenshots with the main coding model after the visual-review path is blocked or fails
+- reading PNG/JPG/WebP files with a non-vision model as a substitute for visual review
+- pretending the active model is vision-capable when the runtime does not actually support image inspection
+- manually comparing screenshots with a non-vision model after the visual-review path is blocked or fails
 - treating a blocked review as permission to improvise a weaker image-analysis path
 
 ## Review principles

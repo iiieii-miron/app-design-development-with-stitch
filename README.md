@@ -47,29 +47,15 @@ node "$SKILL_DIR/scripts/check-env.mjs" "$SKILL_DIR"
 
 This reports whether the skill scripts are present and whether common dependencies such as Node, Ollama, and the preferred visual model appear available.
 
-## Use bundled scripts
+## Script usage references
 
-Analyze a single design screen against a textual spec:
+- `references/analyze-screen-usage.md`
+- `references/visual-review-usage.md`
 
-```bash
-SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
-node "$SKILL_DIR/scripts/analyze-screen.mjs" \
-  docs/design/visual/reference-calendar-mobile.png \
-  docs/design/SCREEN_SPEC.md \
-  docs/design/SCREEN-analysis.md \
-  --context docs/design/DESIGN_SYSTEM.md \
-  --context docs/design/DESIGN_TOKENS.md
-```
-
-Compare reference vs implementation:
-
-```bash
-SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
-node "$SKILL_DIR/scripts/visual-review.mjs" \
-  docs/design/visual/reference-calendar-mobile.png \
-  docs/design/visual/implementation-calendar-mobile.png \
-  docs/design/visual/calendar-gap-report.md
-```
+Both references use the same recommended invocation pattern:
+- keep the working directory in the project
+- call the script by absolute path
+- do not `cd` into the skill directory before running it
 
 ## References
 

@@ -24,6 +24,7 @@ Expected structure:
   SKILL.md
   scripts/
     visual-review.mjs
+    analyze-screen.mjs
   README.md
 ```
 
@@ -46,7 +47,21 @@ node "$SKILL_DIR/scripts/check-env.mjs" "$SKILL_DIR"
 
 This reports whether the skill scripts are present and whether common dependencies such as Node, Ollama, and the preferred visual model appear available.
 
-## Use bundled script
+## Use bundled scripts
+
+Analyze a single design screen against a textual spec:
+
+```bash
+SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
+node "$SKILL_DIR/scripts/analyze-screen.mjs" \
+  docs/design/visual/reference-calendar-mobile.png \
+  docs/design/SCREEN_SPEC.md \
+  docs/design/SCREEN-analysis.md \
+  --context docs/design/DESIGN_SYSTEM.md \
+  --context docs/design/DESIGN_TOKENS.md
+```
+
+Compare reference vs implementation:
 
 ```bash
 SKILL_DIR=/absolute/path/to/app-design-development-with-stitch

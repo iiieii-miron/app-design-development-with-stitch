@@ -35,10 +35,11 @@ This skill and its helper scripts are workflow tooling, not project application 
 
 Do not copy bundled helper scripts into the target project unless the user explicitly asks. Run them from the skill directory instead. The project should contain only product/design artifacts, screenshots, reports, tests, and application code.
 
-This skill expects a bundled visual-review helper next to `SKILL.md`:
+This skill expects bundled analysis helpers next to `SKILL.md`:
 
 ```text
 <skill-directory>/scripts/visual-review.mjs
+<skill-directory>/scripts/analyze-screen.mjs
 ```
 
 Resolve the skill directory explicitly before running helper scripts. Prefer a variable such as `SKILL_DIR` over hard-coded install assumptions.
@@ -54,6 +55,7 @@ Preferred pattern:
 
 ```bash
 SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
+node "$SKILL_DIR/scripts/analyze-screen.mjs" ...
 node "$SKILL_DIR/scripts/visual-review.mjs" ...
 ```
 
@@ -123,7 +125,17 @@ Do not add workflow helper scripts to the project by default.
 
 ## Bundled helper scripts
 
-Use the bundled visual-review helper from the skill directory:
+Use the bundled analysis helpers from the skill directory:
+
+```bash
+SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
+node "$SKILL_DIR/scripts/analyze-screen.mjs" \
+  docs/design/visual/reference-calendar-mobile.png \
+  docs/design/SCREEN_SPEC.md \
+  docs/design/SCREEN-analysis.md \
+  --context docs/design/DESIGN_SYSTEM.md \
+  --context docs/design/DESIGN_TOKENS.md
+```
 
 ```bash
 SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
@@ -133,7 +145,7 @@ node "$SKILL_DIR/scripts/visual-review.mjs" \
   docs/design/visual/calendar-gap-report.md
 ```
 
-Do not assume project-local `scripts/visual-review.mjs` exists.
+Do not assume project-local `scripts/visual-review.mjs` or `scripts/analyze-screen.mjs` exists.
 
 ## Phase 0 — Workflow activation
 
@@ -184,6 +196,8 @@ ${screenshot.downloadUrl}=w${width}
 Use that higher-resolution image as the reference candidate before deciding whether a reference is too small.
 
 Create `docs/design/DESIGN_HANDOFF.md` and `docs/design/COMPONENT_MAP.md`. `COMPONENT_MAP.md` should map design elements to implementation components and list what must be preserved. If extracted Stitch HTML/tokens exist, start from them when practical. If they cannot be used literally, document why and explain how the implementation still preserves the approved behavior, layout, tokens, and interaction contract.
+
+Before implementation exists, you may analyze a Stitch screen directly against its textual spec using `analyze-screen.mjs`. Provide the primary screen spec as inline text or file, and optionally pass supporting context such as `docs/design/DESIGN_SYSTEM.md`, `docs/design/DESIGN_TOKENS.md`, `docs/design/APP_SHELL.md`, or `docs/design/SHARED_COMPONENTS.md` via repeated `--context` flags.
 
 ## Phase 8 — Implementation planning
 

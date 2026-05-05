@@ -42,7 +42,7 @@ This skill expects bundled analysis helpers next to `SKILL.md`:
 <skill-directory>/scripts/analyze-screen.mjs
 ```
 
-Resolve the skill directory explicitly before running helper scripts. Prefer a variable such as `SKILL_DIR` over hard-coded install assumptions.
+Resolve the absolute path to the script, but keep the current working directory in the project. Do not `cd` into the skill directory before running helper scripts.
 
 Possible locations include:
 - `~/.claude/skills/app-design-development-with-stitch/`
@@ -54,9 +54,8 @@ Possible locations include:
 Preferred pattern:
 
 ```bash
-SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
-node "$SKILL_DIR/scripts/analyze-screen.mjs" ...
-node "$SKILL_DIR/scripts/visual-review.mjs" ...
+node "/absolute/path/to/app-design-development-with-stitch/scripts/analyze-screen.mjs" ...
+node "/absolute/path/to/app-design-development-with-stitch/scripts/visual-review.mjs" ...
 ```
 
 If you cannot locate the skill directory or bundled scripts, stop and ask the user instead of creating project-local workflow scripts.
@@ -125,25 +124,10 @@ Do not add workflow helper scripts to the project by default.
 
 ## Bundled helper scripts
 
-Use the bundled analysis helpers from the skill directory:
+Use the right helper for the right job:
 
-```bash
-SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
-node "$SKILL_DIR/scripts/analyze-screen.mjs" \
-  docs/design/visual/reference-calendar-mobile.png \
-  docs/design/SCREEN_SPEC.md \
-  docs/design/SCREEN-analysis.md \
-  --context docs/design/DESIGN_SYSTEM.md \
-  --context docs/design/DESIGN_TOKENS.md
-```
-
-```bash
-SKILL_DIR=/absolute/path/to/app-design-development-with-stitch
-node "$SKILL_DIR/scripts/visual-review.mjs" \
-  docs/design/visual/reference-calendar-mobile.png \
-  docs/design/visual/implementation-calendar-mobile.png \
-  docs/design/visual/calendar-gap-report.md
-```
+- Use `scripts/analyze-screen.mjs` when validating a single design screenshot against a textual spec before implementation exists. See `references/analyze-screen-usage.md`.
+- Use `scripts/visual-review.mjs` when comparing approved reference vs implementation. See `references/visual-review-usage.md`.
 
 Do not assume project-local `scripts/visual-review.mjs` or `scripts/analyze-screen.mjs` exists.
 
